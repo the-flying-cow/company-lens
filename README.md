@@ -1,4 +1,4 @@
-# Interview Orchestrator
+# CompanyLens
 An AI-driven research assistant designed to prepare candidates for interviews by conducting deep-dive company analysis and scheduling preparation alerts in real-time.
 
 ## Project Goal
