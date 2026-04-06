@@ -2,67 +2,156 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Interview Orchestrator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompanyLens | AI Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #ffffff; color: #111; margin: 0; padding: 60px 20px; line-height: 1.5; }
-        .container { max-width: 900px; margin: 0 auto; width: 100%; }
+        :root {
+            --primary-blue: #0ea5e9;
+            /* Enhanced gradient combination */
+            --bg-gradient: linear-gradient(135deg, #bae6fd 0%, #e0f2fe 50%, #f8fafc 100%);
+            --card-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-gradient); 
+            background-attachment: fixed;
+            color: #1e293b; 
+            margin: 0; 
+            padding: 40px 20px; 
+            line-height: 1.6; 
+            min-height: 100vh;
+        }
+
+        .container { max-width: 850px; margin: 0 auto; width: 100%; }
         
-        /* Clean Header */
-        h1 { font-size: 20px; font-weight: 700; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        /* Header Fix: Removed Space */
+        header { text-align: center; margin-bottom: 50px; }
+        h1 { 
+            font-size: 42px; 
+            font-weight: 800; 
+            margin: 0; 
+            letter-spacing: -0.05em; 
+            color: #0f172a;
+        }
+        h1 span { color: var(--primary-blue); }
+        p.subtitle { color: #475569; font-size: 16px; margin-top: 4px; font-weight: 500; }
         
         /* Input Row */
-        .input-row { display: flex; gap: 12px; margin-bottom: 60px; flex-wrap: wrap; }
-        input { border: 1px solid #ddd; padding: 10px 14px; border-radius: 4px; font-size: 14px; flex: 1; min-width: 180px; outline: none; }
-        input:focus { border-color: #000; }
-        button { background: #000; color: #fff; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 14px; }
-        button:hover { background: #333; }
-        button:disabled { background: #eaeaea; color: #999; cursor: not-allowed; }
-
-        /* Output Structure */
-        .results-area { 
+        .input-row { 
             display: flex; 
-            flex-direction: column; 
-            gap: 40px; 
-            width: 100%; 
+            gap: 12px; 
+            margin-bottom: 40px; 
+            flex-wrap: wrap; 
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
+
+        input { 
+            border: 1px solid #cbd5e1; 
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            font-size: 14px; 
+            flex: 1; 
+            min-width: 180px; 
+            outline: none; 
+            transition: all 0.2s;
+            background: white;
+        }
+        input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+        
+        button { 
+            background: #0f172a; 
+            color: #fff; 
+            border: none; 
+            padding: 12px 28px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: all 0.2s;
+        }
+        button:hover { background: var(--primary-blue); transform: translateY(-1px); }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        /* Agent Output Cards */
+        .results-area { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+        
         .section { 
-            border-top: 1px solid #f0f0f0; 
-            padding-top: 20px; 
-            width: 100%; 
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            border-top: 5px solid var(--primary-blue);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; letter-spacing: 0.1em; margin-bottom: 12px; display: block; }
-        
-        .content { 
-            font-size: 15px; 
-            color: #333; 
-            white-space: normal; 
-            word-wrap: break-word; 
+        .section:hover { transform: translateY(-4px); }
+
+        .section-label { 
+            font-size: 12px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            color: var(--primary-blue); 
+            letter-spacing: 0.1em; 
+            margin-bottom: 18px; 
             display: block; 
-            width: 100%; 
         }
         
-        /* Internal Text Formatting */
-        .content b { color: #000; display: block; margin-top: 10px; }
-        .content br { margin-bottom: 8px; }
+        .content { font-size: 15.5px; color: #334155; }
+        .content b { color: #0f172a; display: block; margin-top: 14px; font-weight: 700; }
         
-        #loading { display: none; font-size: 14px; color: #888; margin-bottom: 20px; font-style: italic; }
-        .calendar-link { display: inline-block; margin-top: 30px; color: #000; font-weight: 700; text-decoration: none; border: 1px solid #000; padding: 10px 20px; border-radius: 4px; font-size: 13px; }
-        .calendar-link:hover { background: #000; color: #fff; }
+        #loading { 
+            display: none; 
+            font-size: 14px; 
+            color: #0369a1; 
+            margin-bottom: 30px; 
+            text-align: center;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .calendar-container { text-align: center; margin-top: 20px; padding-bottom: 40px; }
+        .calendar-link { 
+            display: inline-block; 
+            background: #0f172a;
+            color: white; 
+            font-weight: 700; 
+            text-decoration: none; 
+            padding: 14px 32px; 
+            border-radius: 12px; 
+            font-size: 15px; 
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
+        }
+        .calendar-link:hover { background: var(--primary-blue); transform: scale(1.05); }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Interview Orchestrator</h1>
+        <header>
+            <h1>Company<span>Lens</span></h1>
+            <p class="subtitle">Deep company research and interview prep agent</p>
+        </header>
 
         <div class="input-row">
             <input type="text" id="company" placeholder="Company Name">
             <input type="text" id="role" placeholder="Target Role">
             <input type="date" id="date">
-            <button onclick="execute()" id="btn">Run Analysis</button>
+            <button onclick="execute()" id="btn">Analyze</button>
         </div>
 
-        <div id="loading">Processing research data...</div>
+        <div id="loading">Gathering intelligence from parallel agent swarms...</div>
         <div class="results-area" id="output"></div>
     </div>
 
@@ -92,7 +181,6 @@
                 });
                 const data = await response.json();
                 
-                // Render Insights
                 if (data.insights) {
                     Object.entries(data.insights).forEach(([agent, text]) => {
                         const formatted = text
@@ -101,22 +189,24 @@
 
                         output.innerHTML += `
                             <div class="section">
-                                <span class="section-label">${agent.replace('_', ' ')}</span>
+                                <span class="section-label">${agent.replace('_', ' ')} Intelligence</span>
                                 <div class="content">${formatted}</div>
                             </div>
                         `;
                     });
                 }
 
-                // Add Calendar Link with improved URL extraction
                 if(data.mcp_log && data.mcp_log.includes("http")) {
                     const urlMatch = data.mcp_log.match(/https?:\/\/[^\s]+/);
                     if (urlMatch) {
-                        output.innerHTML += `<div><a href="${urlMatch[0]}" target="_blank" class="calendar-link">Add to Calendar</a></div>`;
+                        output.innerHTML += `
+                            <div class="calendar-container">
+                                <a href="${urlMatch[0]}" target="_blank" class="calendar-link">📅 Schedule Prep Session</a>
+                            </div>`;
                     }
                 }
             } catch (e) {
-                output.innerHTML = "Error retrieving research.";
+                output.innerHTML = "<div class='section'>System error. Check backend logs.</div>";
             }
             btn.disabled = false;
             loading.style.display = "none";
