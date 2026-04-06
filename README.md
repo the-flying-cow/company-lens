@@ -1,5 +1,5 @@
-# Interview Orchestrator
-An automated, AI-driven research assistant designed to prepare candidates for interviews by conducting deep-dive company analysis and scheduling preparation alerts in real-time.
+# CompanyLens
+An AI-driven research assistant designed to prepare candidates for interviews by conducting deep-dive company analysis and scheduling preparation alerts in real-time.
 
 ## Project Goal
 The primary goal of this agent is to reduce the "manual research" overhead for job seekers. It orchestrates multiple specialized sub-agents to analyze a company's market position, technical stack, and cultural values simultaneously, while using the **Model Context Protocol (MCP)** to bridge the gap between AI insights and personal productivity tools like Google Calendar.

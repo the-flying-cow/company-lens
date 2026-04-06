@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 
-CALENDAR_ID = os.getenv("CALENDAR_ID", "anant07singh2004@gmail.com")
+CALENDAR_ID = os.getenv("CALENDAR_ID",)
 
 def get_calendar_service():
     SCOPES = ['https://www.googleapis.com/auth/calendar']
