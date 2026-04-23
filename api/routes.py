@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from google.cloud import firestore
 from google import genai
+from google.genai import types
 
 from core.agents import run_sub_agent
 from core.mcp_tools import schedule_prep_alert
@@ -38,23 +39,42 @@ async def start_research(request: InterviewRequest):
         )
         research_plan = plan_response.text
 
+        search_tool = [types.Tool(google_search=types.GoogleSearch())]
+
         # Step C: Phase 2 - Parallel execution (Agents + MCP Tool)
         agent_tasks = [
             run_sub_agent(client, "Market_Agent", "Market position and top 2 competitors", request.company_name),
             run_sub_agent(client, "Tech_Agent", "Core technology stack and recent product launches", request.company_name),
-            run_sub_agent(client, "Culture_Agent", "Company values and common interview themes", request.company_name)
+            run_sub_agent(client, "Culture_Agent", "Company values and common interview themes", request.company_name),
+            run_sub_agent(client, "Role_Agent", f"Analyze the {request.target_role} role at the {request.company_name}. Provide 3 general expectations from this role by the company.", request.company_name, tools=search_tool)
         ]
         
         # Trigger the MCP tool call
         mcp_task = schedule_prep_alert(request.company_name, request.interview_date)
         
         # Run everything at once for efficiency
-        results, mcp_msg = await asyncio.gather(asyncio.gather(*agent_tasks), mcp_task)
+        results, mcp_msg = await asyncio.gather(asyncio.gather(*agent_tasks, return_exceptions= True), mcp_task)
         
         # Combine insights
+        agent_keys = ["market_analysis", "tech_analysis", "cultural_analysis", "role_agent"]
         combined_insights = {}
-        for r in results:
-            combined_insights.update(r)
+        for i,r in enumerate(results):
+            key= agent_keys[i]
+            if isinstance(r, Exception):
+                # Handle the failure gracefully
+                combined_insights[key] = {
+                "status": "error",
+                "data": None,
+                "message": str(r)
+                }
+            else:
+                # If run_sub_agent returns the whole response, use r.text
+                text_content = r.text if hasattr(r, 'text') else str(r)
+                
+                combined_insights[key] = {
+                    "status": "success",
+                    "data": text_content 
+                }
 
         # Step D: Save state to Firestore
         state_data = {
