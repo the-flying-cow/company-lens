@@ -11,6 +11,7 @@ The primary goal of this agent is to reduce the "manual research" overhead for j
     * **Market Agent**: Researches competitors and market trends.
     * **Tech Agent**: Identifies core technology stacks and product launches.
     * **Culture Agent**: Analyzes company values and interview themes.
+    * **Role Agent**: Provides insights on user input role for the company.
     * **MCP Tool**: Calculates the optimal prep time (24h before) and injects a calendar event.
 4.  **State Management**: All research data and action logs are persisted in **Google Cloud Firestore**.
 5.  **Minimalist UI**: Delivers insights through a clean, distraction-free "White UI" focused on readability.
