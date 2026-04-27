@@ -2,7 +2,7 @@ from google import genai
 import re
 from google.genai import types
 
-# 3. Sub-Agent Logic 
+# Sub-Agent Logic 
 async def run_sub_agent(client, agent_name: str, task: str, company: str, tools= None):
     """Executes a specialized agent task with token limits and optional tools access."""
     prompt = f"You are the {agent_name}. Research the following for {company}: {task}. Provide 3 short key insights.No intro, no outro.Keep it under 200 words."

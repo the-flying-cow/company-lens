@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CompanyLens | AI Intelligence</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-blue: #0ea5e9;
-            --linkedin-blue: #0077b5;
             --bg-gradient: linear-gradient(135deg, #bae6fd 0%, #e0f2fe 50%, #f8fafc 100%);
             --card-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
@@ -89,8 +87,7 @@
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        /* Specific accent for Role Agent */
-        .section.role-agent { border-top-color: var(--linkedin-blue); }
+        .section.role-agent { border-top-color: #0077b5; }
 
         .section-label { 
             font-size: 12px; 
@@ -105,37 +102,6 @@
         .content { font-size: 15.5px; color: #334155; }
         .content b { color: #0f172a; display: block; margin-top: 14px; font-weight: 700; }
         
-        /* LinkedIn Profile Tags */
-        .profile-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px dashed #e2e8f0;
-        }
-
-        .profile-link {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--linkedin-blue);
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .profile-link:hover {
-            background: var(--linkedin-blue);
-            color: white;
-            transform: translateY(-2px);
-        }
-
         #loading { 
             display: none; 
             font-size: 14px; 
@@ -152,8 +118,8 @@
             100% { opacity: 0.6; }
         }
 
-        .calendar-container { text-align: center; margin-top: 20px; padding-bottom: 40px; }
-        .calendar-link { 
+        .notes-container { text-align: center; margin-top: 20px; padding-bottom: 40px; }
+        .notes-link { 
             display: inline-block; 
             background: #0f172a;
             color: white; 
@@ -165,7 +131,7 @@
             transition: all 0.3s;
             box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
         }
-        .calendar-link:hover { background: var(--primary-blue); transform: scale(1.05); }
+        .notes-link:hover { background: var(--primary-blue); transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -215,37 +181,17 @@
                 if (data.insights) {
                     Object.entries(data.insights).forEach(([agent, result]) => {
                         let contentHtml = "";
-                        let extraHtml = "";
 
                         if (result.status === "success" && typeof result.data === 'string') {
-                            let text = result.data;
-
-                            // SPECIAL HANDLING FOR ROLE AGENT: Parse LinkedIn Links
-                            if (agent === "Role_Agent") {
-                                const linkedinRegex = /(https?:\/\/(www\.)?linkedin\.com\/in\/[^\s\)]+)/g;
-                                const matches = text.match(linkedinRegex);
-                                
-                                if (matches) {
-                                    // Remove links from text to keep it clean
-                                    text = text.replace(linkedinRegex, '').trim();
-                                    extraHtml = `<div class="profile-container">` + 
-                                        matches.map((url, i) => `
-                                            <a href="${url}" target="_blank" class="profile-link">
-                                                <i class="fab fa-linkedin"></i> Profile ${i+1}
-                                            </a>
-                                        `).join('') + `</div>`;
-                                }
-                            }
-
-                            const formatted = text
+                            const formatted = result.data
                                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
                                 .replace(/\n/g, '<br>');
                             
-                            contentHtml = `<div class="content">${formatted}${extraHtml}</div>`;
+                            contentHtml = `<div class="content">${formatted}</div>`;
                         } else if (result.status === "success") {
                             contentHtml = `<div class="content">${JSON.stringify(result.data)}</div>`;
                         } else {
-                            contentHtml = `<div class="content" style="color: #e11d48;">⚠️ ${result.message}</div>`;
+                            contentHtml = `<div class="content" style="color: #e11d48;">Error: ${result.message}</div>`;
                         }
 
                         const agentClass = agent === "Role_Agent" ? "section role-agent" : "section";
@@ -263,8 +209,8 @@
                     const urlMatch = data.mcp_log.match(/https?:\/\/[^\s]+/);
                     if (urlMatch) {
                         output.innerHTML += `
-                            <div class="calendar-container">
-                                <a href="${urlMatch[0]}" target="_blank" class="calendar-link">📅 Schedule Prep Session</a>
+                            <div class="notes-container">
+                                <a href="${urlMatch[0]}" target="_blank" class="notes-link">View Generated Notes Document</a>
                             </div>`;
                     }
                 }

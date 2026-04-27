@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompanyLens | Agentic Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --dark: #0f172a;
+            --bg: #f8fafc;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--dark); margin: 0; }
+        .hero { text-align: center; padding: 80px 20px; background: white; border-bottom: 1px solid #e2e8f0; }
+        h1 { font-size: 48px; font-weight: 800; margin-bottom: 10px; }
+        h1 span { color: var(--primary); }
+        .subtitle { font-size: 18px; color: #64748b; max-width: 600px; margin: 0 auto 30px; }
+        
+        .btn-auth {
+            background: var(--dark);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+        .btn-auth:hover { background: var(--primary); transform: translateY(-2px); }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        .agent-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #f1f5f9;
+        }
+        .agent-card i { font-size: 32px; color: var(--primary); margin-bottom: 15px; }
+        .agent-card h3 { margin: 10px 0; font-size: 18px; }
+        .agent-card p { font-size: 14px; color: #64748b; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>Company<span>Lens</span></h1>
+        <p class="subtitle">The multi-agent swarm that automates your interview research by scanning the web, your calendar, and your inbox.</p>
+        <a href="/login" class="btn-auth">
+            <i class="fab fa-google"></i> Continue with Google
+        </a>
+    </section>
+
+    <div class="agent-grid">
+        <div class="agent-card">
+            <i class="fas fa-chart-pie"></i>
+            <h3>Market Agent</h3>
+            <p>Scans competitors and market trends to give you the big picture.</p>
+        </div>
+        <div class="agent-card">
+            <i class="fas fa-microchip"></i>
+            <h3>Tech Agent</h3>
+            <p>Analyzes the company's tech stack and recent product launches.</p>
+        </div>
+        <div class="agent-card">
+            <i class="fas fa-heart"></i>
+            <h3>Culture Agent</h3>
+            <p>Uncovers values and common interview themes from employees.</p>
+        </div>
+        <div class="agent-card">
+            <i class="fas fa-user-tag"></i>
+            <h3>Role Agent</h3>
+            <p>Extracts specific job expectations and identifies key team members.</p>
+        </div>
+    </div>
+</body>
+</html>
