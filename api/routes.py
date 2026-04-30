@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from google.cloud import firestore
@@ -20,6 +22,9 @@ from datetime import datetime, timedelta, timezone
 
 from core.agents import run_sub_agent
 from core.mcp_tools import create_interview_note, get_google_service
+from core.strategy_agent import orchestrate_strategy_agents
+
+executor = ThreadPoolExecutor(max_workers=5)
 
 if os.getenv("ENV") == "development":
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # Only for local dev!
@@ -55,7 +60,7 @@ async def read_landing(request: Request):
 async def login(request: Request):
 
     if request.session.get('google_token'):
-        return RedirectResponse(url="/lens")
+        return RedirectResponse(url="/")
 
     flow = Flow.from_client_config(CLIENT_CONFIG, scopes=SCOPES)
     flow.redirect_uri = os.environ.get("REDIRECT_URL")
@@ -80,7 +85,7 @@ async def callback(request: Request):
     credentials = flow.credentials
     request.session['google_token'] = credentials.to_json()
 
-    return RedirectResponse(url="/lens")
+    return RedirectResponse(url="/")
 
 @router.get("/lens")
 async def read_dashboard(request: Request):
@@ -90,6 +95,30 @@ async def read_dashboard(request: Request):
         return RedirectResponse(url="/login")
 
     return FileResponse('static/index.html')
+
+@router.get("/dashboard")
+async def read_strategy_dashboard(request: Request):
+    token_json = request.session.get('google_token')
+
+    if not token_json:
+        return RedirectResponse(url="/login")
+
+    return FileResponse('static/dashboard.html')
+
+    
+@router.get("/prep")
+async def read_prep(request: Request):
+    token_json= request.session.get('google_token')
+    if not token_json:
+        return RedirectResponse(url="/login")
+    
+    return FileResponse('static/prep.html')
+
+
+@router.get("/auth/status")
+async def auth_status(request: Request):
+    token_json = request.session.get('google_token')
+    return {"authenticated": bool(token_json)}
 
 @router.get("/logout")
 async def logout(request: Request):
@@ -107,6 +136,11 @@ class InterviewRequest(BaseModel):
     company_name: str
     target_role: str
     interview_date: str
+
+class StrategyRequest(BaseModel):
+    company_name: str
+    target_role: str
+    strategy_choice: Optional[str] = None
 
 def create_calendar_prep_event(service, company_name, doc_url, start_date, end_date):
     event = {
@@ -136,7 +170,7 @@ async def start_research(request: InterviewRequest, session_request: Request):
         
         # Step B: Phase 1 - High Level Plan
         plan_response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-pro",
             contents=f"Provide a 3-bullet research plan for {request.company_name} - {request.target_role}.",
             config={"max_output_tokens": 2000}
         )
@@ -144,11 +178,11 @@ async def start_research(request: InterviewRequest, session_request: Request):
 
         search_tool = [types.Tool(google_search=types.GoogleSearch())]
 
-        # Step C: Phase 2 - Parallel execution (Agents + MCP Tool)
+        # Step C: Parallel execution (Agents + MCP Tool)
         agent_tasks = [
-            run_sub_agent(client, "Market_Agent", "Market position and top 2 competitors", request.company_name),
-            run_sub_agent(client, "Tech_Agent", "Core technology stack and recent product launches", request.company_name),
-            run_sub_agent(client, "Culture_Agent", "Company values and common interview themes", request.company_name),
+            run_sub_agent(client, "Market_Agent", "Market position and top 2 competitors.", request.company_name),
+            run_sub_agent(client, "Tech_Agent", "Core technology stack and recent product launches.", request.company_name),
+            run_sub_agent(client, "Culture_Agent", "Company values and common interview themes.", request.company_name),
             run_sub_agent(client, "Role_Agent", f"Analyze the {request.target_role} role at the {request.company_name}. Provide 3 general expectations from this role by the company.", request.company_name, tools=search_tool)
         ]
         
@@ -170,8 +204,7 @@ async def start_research(request: InterviewRequest, session_request: Request):
                 "message": str(r)
                 }
             else:
-                # If run_sub_agent returns the whole response, use r.text
-                text_content = r.text if hasattr(r, 'text') else str(r)
+                text_content = r.text if hasattr(r, 'text') else str(r) # type: ignore
                 
                 combined_insights[key] = {
                     "status": "success",
@@ -190,9 +223,15 @@ async def start_research(request: InterviewRequest, session_request: Request):
             next_day_dt= interview_dt + timedelta(days=1)
             start_str = interview_dt.strftime("%Y-%m-%d")
             end_str = next_day_dt.strftime("%Y-%m-%d")
-            calendar_link = create_calendar_prep_event(calendar_service, request.company_name, doc_url, start_str, end_str)
             
-        # Step D: Save state to Firestore
+            # Run calendar event creation on thread executor
+            loop = asyncio.get_event_loop()
+            calendar_link = await loop.run_in_executor(
+                executor,
+                lambda: create_calendar_prep_event(calendar_service, request.company_name, doc_url, start_str, end_str)
+            )
+            
+        # Step D: Save state to Firestore (run on executor)
         state_data = {
             "company_name": request.company_name,
             "role": request.target_role,
@@ -202,7 +241,12 @@ async def start_research(request: InterviewRequest, session_request: Request):
             "mcp_action_log": mcp_msg.get("url"),
             "created_at": firestore.SERVER_TIMESTAMP
         }
-        doc_ref.set(state_data)
+        
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor,
+            lambda: doc_ref.set(state_data)
+        )
         
         return {
             "status": "Success", 
@@ -213,6 +257,56 @@ async def start_research(request: InterviewRequest, session_request: Request):
         
     except Exception as e:
         print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/strategy")
+async def run_strategy(request: StrategyRequest, session_request: Request):
+    """Run strategy agent orchestration and store results in Firestore."""
+    try:
+        
+        token_json = session_request.session.get('google_token')
+        if not token_json:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        
+        if not request.strategy_choice:
+            raise HTTPException(status_code=400, detail="Please select a strategy focus before running the strategy agent.")
+
+        strategy_results = await orchestrate_strategy_agents(
+            client,
+            request.company_name,
+            request.target_role,
+            request.strategy_choice
+        )
+        
+
+        strategy_ref = db.collection("strategies").document()
+        firestore_data = {
+            "company_name": request.company_name,
+            "target_role": request.target_role,
+            "strategy_choice": request.strategy_choice,
+            "questions": strategy_results["questions"],
+            "networking_script": strategy_results.get("networking_script"),
+            "introduction_script": strategy_results.get("introduction_script"),
+            "created_at": firestore.SERVER_TIMESTAMP
+        }
+        
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor,
+            lambda: strategy_ref.set(firestore_data)
+        )
+        
+        return {
+            "status": "Success",
+            "document_id": strategy_ref.id,
+            "data": strategy_results
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Strategy Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Step E: Endpoint to expose MCP status

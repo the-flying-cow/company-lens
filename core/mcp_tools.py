@@ -1,9 +1,11 @@
 import os
 import asyncio
+import ast
 from datetime import datetime, timedelta
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 def get_google_service(token_json, service_name, version):
     """Builds a Google API service using the OAuth token from the session."""
@@ -45,6 +47,9 @@ def get_or_create_folder(drive_service):
 async def create_interview_note(token_json, company_name, summary_text):
     """ Creates a Google Doc with interview summary in a specific folder and returns the link."""
     
+    loop = asyncio.get_event_loop()
+    executor = ThreadPoolExecutor(max_workers=3)
+    
     try:
         docs_service = get_google_service(token_json, 'docs', 'v1')
         drive_service = get_google_service(token_json, 'drive', 'v3')
@@ -52,7 +57,8 @@ async def create_interview_note(token_json, company_name, summary_text):
         if not docs_service or not drive_service:
             return "Error: Could not authenticate with Google Services"
 
-        folder_id = get_or_create_folder(drive_service)
+        # Run blocking Google API calls on thread executor
+        folder_id = await loop.run_in_executor(executor, get_or_create_folder, drive_service)
         
         doc_metadata = {
             'name': f"Interview Prep: {company_name}",
@@ -60,7 +66,10 @@ async def create_interview_note(token_json, company_name, summary_text):
             'parents': [folder_id]
         }
         
-        doc_file = drive_service.files().create(body=doc_metadata, fields='id').execute()
+        doc_file = await loop.run_in_executor(
+            executor,
+            lambda: drive_service.files().create(body=doc_metadata, fields='id').execute()
+        )
         doc_id = doc_file.get('id')
 
         # Parse summary data
@@ -122,7 +131,11 @@ async def create_interview_note(token_json, company_name, summary_text):
             })
             current_index += len(body_text)
 
-        docs_service.documents().batchUpdate(documentId=doc_id, body={'requests': requests}).execute()
+        # Run batchUpdate on thread executor
+        await loop.run_in_executor(
+            executor,
+            lambda: docs_service.documents().batchUpdate(documentId=doc_id, body={'requests': requests}).execute()
+        )
 
         doc_url = f"https://docs.google.com/document/d/{doc_id}/edit"
         return {"status": "success", "url": doc_url}
@@ -130,4 +143,6 @@ async def create_interview_note(token_json, company_name, summary_text):
     except Exception as e:
         print(f"Error creating note: {e}", flush= True)
         return {"status": "error", "message": f"Note Creation Error: {str(e)}"}
+    finally:
+        executor.shutdown(wait=False)
 

@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# 1. Initialization
 app = FastAPI(title="Interview Orchestrator")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 

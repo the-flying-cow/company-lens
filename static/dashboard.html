@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Lens - Candidate Toolkit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        .dashboard-bg {
+            background: linear-gradient(170deg, #e0f7f4 0%, #8177bc 50%, #8a7edc 100%);
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 1.75rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #dbeafe;
+            border-top-color: #0284c7;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="dashboard-bg p-6 md:p-12">
+
+    <header class="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+        <div>
+            <p class="text-gray-600 font-semibold mt-1">Career Intelligence Dashboard</p>
+            <h1 class="text-4xl font-black text-gray-900 tracking-tighter">
+                <span id="display-company">Company</span> <span class="text-sky-500">/</span> <span id="display-role">Role</span>
+            </h1>
+            <p id="display-choice-line" class="mt-2 text-sm text-slate-700 hidden">
+                Selected focus: <span id="display-choice" class="font-semibold text-sky-600"></span>
+            </p>
+            
+
+
+
+            <div class="flex flex-wrap items-center gap-3 mt-10 mb-8 bg-white/50 p-4 rounded-xl border border-white/40 shadow-sm">
+                <input type="text" id="strat-company" placeholder="Company Name" class="px-4 py-2.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm font-semibold text-gray-900 placeholder-gray-400 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <input type="text" id="strat-role" placeholder="Target Role" class="px-4 py-2.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm font-semibold text-gray-900 placeholder-gray-400 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <select id="strat-choice" class="px-4 py-2.5 rounded-lg bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm font-semibold text-gray-900 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    <option value="" disabled selected hidden>Select focus</option>
+                    <option value="Name-Based">Name-Based</option>
+                    <option value="Location-Based">Location-Based</option>
+                    <option value="Sports-Based">Sports-Based</option>
+                    <option value="Unique/Standout">Unique/Standout</option>
+                </select>
+                <button id="strategy-btn" onclick="runStrategyAgent()" class="px-6 py-2.5 bg-gradient-to-r from-sky-500 to-sky-600 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 whitespace-nowrap">
+                    <span class="spinner" id="strategy-spinner" style="display: none;"></span>
+                    <span id="strategy-text">Run Strategy</span>
+                </button>
+            </div>
+        </div>
+        <a href="/" class="px-6 py-3 bg-white/60 hover:bg-white rounded-lg text-sm font-bold transition-all border border-white/40 whitespace-nowrap shadow-sm hover:shadow-md">
+            Back to Home
+        </a>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 pb-12">
+        
+        <div class="glass-card p-8 flex flex-col">
+            <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                Networking Script
+            </h3>
+            <div class="bg-sky-50 rounded-lg p-6 border border-sky-100 flex-grow space-y-6">
+                <div class="space-y-3">
+                    <p class="text-sm font-semibold text-gray-900">AI generated message</p>
+                    <p id="script-text-1" class="text-sm text-gray-700 leading-relaxed italic">
+                        No data yet. Run strategy agent to generate.
+                    </p>
+                    <button onclick="copyToClipboard('script-text-1')" class="w-full py-2 bg-sky-600 text-white rounded-lg font-bold text-sm hover:bg-sky-700 shadow-sm hover:shadow-md transition-all">
+                        Copy Message
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-sm font-semibold text-gray-900">Template 1</p>
+                    <p id="script-text-2" class="text-sm text-gray-700 leading-relaxed">
+                        "Hi [Name], I came across your profile and was impressed by your work at [Company]. I'm exploring opportunities in [Role] and would love to learn about your experience on the team. Do you have a few minutes for a quick chat?"
+                    </p>
+                    <button onclick="copyToClipboard('script-text-2')" class="w-full py-2 bg-sky-500 text-white rounded-lg font-bold text-sm hover:bg-sky-600 shadow-sm hover:shadow-md transition-all">
+                        Copy Template
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-sm font-semibold text-gray-900">Template 2</p>
+                    <p id="script-text-3" class="text-sm text-gray-700 leading-relaxed">
+                        "Hi, I'm preparing for a [Role] opportunity at [Company] and would really appreciate your perspective on the interview process and team dynamics. Would you be open to a brief conversation?"
+                    </p>
+                    <button onclick="copyToClipboard('script-text-3')" class="w-full py-2 bg-sky-500 text-white rounded-lg font-bold text-sm hover:bg-sky-600 shadow-sm hover:shadow-md transition-all">
+                        Copy Template
+                    </button>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-sm font-semibold text-gray-900">Template 3</p>
+                    <p id="script-text-4" class="text-sm text-gray-700 leading-relaxed">
+                        "Hi [Name], I admire [Company]'s work and am exploring [Role] roles there. Would you be willing to share a few insights about the culture and what success looks like on your team?"
+                    </p>
+                    <button onclick="copyToClipboard('script-text-4')" class="w-full py-2 bg-sky-500 text-white rounded-lg font-bold text-sm hover:bg-sky-600 shadow-sm hover:shadow-md transition-all">
+                        Copy Template
+                    </button>
+                </div>
+
+                <div id="linkedin-search-block" class="mt-6 hidden">
+                    <a id="linkedin-search-link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sky-700 font-semibold hover:text-sky-900">
+                        <i class="fas fa-link"></i>
+                        Find people on LinkedIn for this company & role
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-2 space-y-8">
+            <div class="glass-card p-8">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Interview Questions</h3>
+                <ul id="questions-container" class="space-y-3 text-sm text-gray-700 font-medium"></ul>
+                <p id="questions-empty" class="text-sm text-gray-500 italic">No data yet. Run strategy agent to generate.</p>
+            </div>
+            <div class="glass-card p-8">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Interview Introduction Script</h3>
+                <div class="space-y-4">
+                    <p id="selected-focus-label" class="text-sm text-slate-700">Choose one of the strategy options above before running the agent.</p>
+                    <p id="introduction-script-text" class="text-sm text-gray-700 leading-relaxed italic">No introduction script yet. Run strategy agent to generate.</p>
+                    <button onclick="copyToClipboard('introduction-script-text')" class="w-full py-2 bg-slate-700 text-white rounded-lg font-bold text-sm hover:bg-slate-800 shadow-sm hover:shadow-md transition-all">
+                        Copy Introduction Script
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+
+        async function runStrategyAgent() {
+            const company = document.getElementById('strat-company').value.trim();
+            const role = document.getElementById('strat-role').value.trim();
+            const strategyChoice = document.getElementById('strat-choice').value;
+            
+            if (!company || !role || !strategyChoice) {
+                alert("Please enter Company Name, Target Role, and select a focus option.");
+                return;
+            }
+            
+            
+            const btn = document.getElementById('strategy-btn');
+            const spinner = document.getElementById('strategy-spinner');
+            const text = document.getElementById('strategy-text');
+            const companyInput = document.getElementById('strat-company');
+            const roleInput = document.getElementById('strat-role');
+            const choiceSelect = document.getElementById('strat-choice');
+            
+            btn.disabled = true;
+            companyInput.disabled = true;
+            roleInput.disabled = true;
+            choiceSelect.disabled = true;
+            spinner.style.display = 'inline-block';
+            text.textContent = 'Running...';
+            
+            try {
+                console.log('Strategy payload:', { company, role, strategyChoice });
+                const response = await fetch('/strategy', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company_name: company, target_role: role, strategy_choice: strategyChoice })
+                });
+                
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`Strategy agent failed: ${response.status} ${response.statusText} - ${errorBody}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'Success') {
+                    displayStrategyResults(data.data);
+                    sessionStorage.setItem('companyLensInput', JSON.stringify({ company, role, strategy_choice: strategyChoice }));
+                    sessionStorage.setItem('companyLensResult', JSON.stringify(data.data));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to run strategy agent. Check browser console.');
+            } finally {
+                btn.disabled = false;
+                document.getElementById('strat-company').disabled = false;
+                document.getElementById('strat-role').disabled = false;
+                document.getElementById('strat-choice').disabled = false;
+                spinner.style.display = 'none';
+                text.textContent = 'Run Strategy';
+            }
+        }
+
+        function getLinkedInSearchUrl(company, role) {
+            const query = `${role} at ${company}`;
+            return `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(query)}`;
+        }
+
+        function displayStrategyResults(data) {
+            document.getElementById('display-company').textContent = data.company_name;
+            document.getElementById('display-role').textContent = data.target_role;
+            document.getElementById('display-choice').textContent = data.strategy_choice || '';
+            document.getElementById('display-choice-line').classList.toggle('hidden', !data.strategy_choice);
+            
+            const networkingScript = data.networking_script || `Hi [Name], I came across your profile and was impressed by your work at ${data.company_name}. I'm exploring opportunities in ${data.target_role} and would love to learn about your experience on the team. Do you have a few minutes for a quick chat?`;
+            const introductionScript = data.introduction_script || `Hi, I'm preparing for the ${data.target_role} position at ${data.company_name} and would love to hear your insights about the team and growth opportunities.`;
+            const selectedFocus = data.strategy_choice ? `Focus: ${data.strategy_choice}` : 'Choose a focus option above and rerun the agent.';
+            const template1 = `Hi [Name], I came across your profile and was impressed by your work at ${data.company_name}. I'm exploring opportunities in ${data.target_role} and would love to learn about your experience on the team. Do you have a few minutes for a quick chat?`;
+            const template2 = `Hi [Name], I'm preparing for a ${data.target_role} opportunity at ${data.company_name} and would really appreciate any advice on the interview process and the team. Would you be open to a brief conversation?`;
+            const template3 = `Hi [Name], I admire ${data.company_name}'s work and am exploring ${data.target_role} roles there. Would you be willing to share a few insights about the culture and what success looks like on your team?`;
+
+            document.getElementById('selected-focus-label').textContent = selectedFocus;
+            document.getElementById('script-text-1').textContent = networkingScript;
+            document.getElementById('introduction-script-text').textContent = introductionScript;
+            document.getElementById('script-text-2').textContent = template1;
+            document.getElementById('script-text-3').textContent = template2;
+            document.getElementById('script-text-4').textContent = template3;
+
+            const linkedinBlock = document.getElementById('linkedin-search-block');
+            const linkedinLink = document.getElementById('linkedin-search-link');
+            linkedinLink.href = getLinkedInSearchUrl(data.company_name, data.target_role);
+            linkedinLink.textContent = `Search people for "${data.target_role} at ${data.company_name}" on LinkedIn`;
+            linkedinBlock.classList.remove('hidden');
+
+            const qContainer = document.getElementById('questions-container');
+            const qEmpty = document.getElementById('questions-empty');
+            qContainer.innerHTML = '';
+            
+            if (data.questions && data.questions.length > 0) {
+                qEmpty.style.display = 'none';
+                data.questions.forEach((q, idx) => {
+                    const li = document.createElement('li');
+                    li.className = 'flex gap-3 p-3 bg-sky-50 rounded-lg border border-sky-100';
+                    const cleanQ = q.replace(/#/g, '');
+                    li.innerHTML = `<span class="text-sky-600 font-bold flex-shrink-0">Q${idx+1}:</span> <span class="text-gray-700">${cleanQ}</span>`;
+                    qContainer.appendChild(li);
+                });
+            } else {
+                qEmpty.style.display = 'block';
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            if (!text || text.includes('No data yet. Run strategy agent to generate.')) {
+                alert('No script to copy. Run strategy agent first.');
+                return;
+            }
+            navigator.clipboard.writeText(text);
+            alert('Script copied to clipboard!');
+        }
+
+        window.onload = () => {
+            const storedResult = sessionStorage.getItem('companyLensResult');
+            const storedInput = sessionStorage.getItem('companyLensInput');
+            if (storedInput) {
+                try {
+                    const inputData = JSON.parse(storedInput);
+                    document.getElementById('strat-company').value = inputData.company_name || inputData.company || '';
+                    document.getElementById('strat-role').value = inputData.target_role || inputData.role || '';
+                    document.getElementById('strat-choice').value = inputData.strategy_choice || '';
+                } catch (e) {
+                    console.error('Error loading stored input:', e);
+                }
+            }
+            if (storedResult) {
+                try {
+                    displayStrategyResults(JSON.parse(storedResult));
+                } catch (e) {
+                    console.error('Error loading stored results:', e);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

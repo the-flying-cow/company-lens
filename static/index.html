@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CompanyLens | AI Intelligence</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>CompanyLens - Research Agents</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-blue: #0ea5e9;
-            --bg-gradient: linear-gradient(135deg, #bae6fd 0%, #e0f2fe 50%, #f8fafc 100%);
+            --bg-gradient: linear-gradient(125deg, #bae6fd 0%, #90e48c 70%, #bdd9bb 95%);
             --card-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --input-border: #e2e8f0;
+            --dark-navy: #0f172a;
+            --success-green: #10b981;
         }
 
         body { 
@@ -19,156 +23,185 @@
             color: #1e293b; 
             margin: 0; 
             padding: 40px 20px; 
-            line-height: 1.6; 
             min-height: 100vh;
         }
 
-        .container { max-width: 850px; margin: 0 auto; width: 100%; }
+        .container { max-width: 900px; margin: 0 auto; width: 100%; }
         
-        header { text-align: center; margin-bottom: 50px; }
-        h1 { 
-            font-size: 42px; 
-            font-weight: 800; 
-            margin: 0; 
-            letter-spacing: -0.05em; 
-            color: #0f172a;
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start; 
+            margin-bottom: 50px; 
         }
+
+        .header-content { text-align: left; }
+        
+        h1 { font-size: 42px; font-weight: 800; margin: 0; color: var(--dark-navy); }
         h1 span { color: var(--primary-blue); }
         p.subtitle { color: #475569; font-size: 16px; margin-top: 4px; font-weight: 500; }
+
+        .home-btn {
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--dark-navy);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+        }
+
+        .home-btn:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
         
         .input-row { 
-            display: flex; 
-            gap: 12px; 
-            margin-bottom: 40px; 
-            flex-wrap: wrap; 
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex; gap: 12px; margin: 0 auto 40px auto; background: #ffffff;
+            padding: 12px 16px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            align-items: center; border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        /* Full lock: disable all clicks on the row */
+        .input-row.locked {
+            opacity: 0.6;
+            pointer-events: none; 
+            background-color: #f1f5f9;
+        }
+
+        .input-row.locked input {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+            color: #0f172a !important;
         }
 
         input { 
-            border: 1px solid #cbd5e1; 
-            padding: 12px 16px; 
-            border-radius: 10px; 
-            font-size: 14px; 
-            flex: 1; 
-            min-width: 180px; 
-            outline: none; 
-            transition: all 0.2s;
-            background: white;
+            border: 1px solid var(--input-border); padding: 12px 16px; border-radius: 10px; 
+            font-size: 14px; flex: 1; outline: none; transition: all 0.2s ease;
+            background-color: #ffffff;
         }
-        input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+
         
-        button { 
-            background: #0f172a; 
-            color: #fff; 
-            border: none; 
-            padding: 12px 28px; 
-            border-radius: 10px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            font-size: 14px; 
-            transition: all 0.2s;
+        input:disabled { 
+            background-color: transparent !important;
+            color: #94a3b8 !important; 
+            border-color: transparent !important;
         }
-        button:hover { background: var(--primary-blue); transform: translateY(-1px); }
-        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        button#btn { 
+            background: var(--dark-navy); color: #fff; border: none; padding: 12px 28px; 
+            border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        button:disabled {
+            background: #475569 !important;
+            cursor: not-allowed;
+        }
 
         .results-area { display: flex; flex-direction: column; gap: 24px; width: 100%; }
         
-        .section { 
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: var(--card-shadow);
-            border-top: 5px solid var(--primary-blue);
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        .section.role-agent { border-top-color: #0077b5; }
-
-        .section-label { 
-            font-size: 12px; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            color: var(--primary-blue); 
-            letter-spacing: 0.1em; 
-            margin-bottom: 18px; 
-            display: block; 
-        }
+        .section { background: white; border-radius: 16px; padding: 30px; box-shadow: var(--card-shadow); border-top: 5px solid var(--primary-blue); }
+        .section-label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--primary-blue); margin-bottom: 18px; display: block; }
         
         .content { font-size: 15.5px; color: #334155; }
-        .content b { color: #0f172a; display: block; margin-top: 14px; font-weight: 700; }
+        .content b { color: var(--dark-navy); display: block; margin-top: 14px; font-weight: 700; }
         
-        #loading { 
-            display: none; 
-            font-size: 14px; 
-            color: #0369a1; 
-            margin-bottom: 30px; 
-            text-align: center;
-            font-weight: 600;
-            animation: pulse 1.5s infinite;
-        }
+        #loading { display: none; font-size: 14px; color: #0369a1; margin-bottom: 30px; text-align: center; font-weight: 600; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
+        .calendar-toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px);
+            background: #065f46; color: white; padding: 14px 28px; border-radius: 50px;
+            font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); z-index: 2000;
         }
+        .calendar-toast.show { transform: translateX(-50%) translateY(0); }
 
-        .notes-container { text-align: center; margin-top: 20px; padding-bottom: 40px; }
-        .notes-link { 
-            display: inline-block; 
-            background: #0f172a;
-            color: white; 
-            font-weight: 700; 
-            text-decoration: none; 
-            padding: 14px 32px; 
-            border-radius: 12px; 
-            font-size: 15px; 
-            transition: all 0.3s;
-            box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
+        .nav-container { display: flex; justify-content: center; margin-top: 30px; padding-bottom: 40px; }
+
+        .doc-link {
+            display: none; background: var(--success-green); color: white; font-weight: 700;
+            text-decoration: none; padding: 16px 32px; border-radius: 12px; font-size: 16px;
+            transition: all 0.3s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); align-items: center; gap: 10px;
         }
-        .notes-link:hover { background: var(--primary-blue); transform: scale(1.05); }
+        .doc-link:hover { transform: translateY(-2px); background: #059669; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Company<span>Lens</span></h1>
-            <p class="subtitle">Deep company research and interview prep agent</p>
+            <div class="header-content">
+                <h1>Research<span>Agents</span></h1>
+                <p class="subtitle">Deep company research and interview prep agent</p>
+            </div>
+            <a href="/" class="home-btn">Back to Home</a>
         </header>
 
-        <div class="input-row">
+        <!-- Added ID to the row for easy locking[cite: 2] -->
+        <div class="input-row" id="main-input-row">
             <input type="text" id="company" placeholder="Company Name">
             <input type="text" id="role" placeholder="Target Role">
             <input type="date" id="date">
             <button onclick="execute()" id="btn">Analyze</button>
         </div>
-
+        
+        <div id="calendar-toast" class="calendar-toast">
+            <i class="fas fa-calendar-check"></i>
+            <span>Interview Prep Scheduled in your Google Calendar</span>
+        </div>
+        
         <div id="loading">Gathering intelligence from parallel agent swarms...</div>
-        <div class="results-area" id="output"></div>
+        
+        <div id="output" class="results-area"></div>
+
+        <div class="nav-container">
+            <a href="#" id="doc-btn" class="doc-link" target="_blank">
+                View Generated Research Notes <i class="fas fa-file-alt"></i>
+            </a>
+        </div>
     </div>
 
     <script>
         async function execute() {
             const btn = document.getElementById('btn');
+            const row = document.getElementById('main-input-row');
             const output = document.getElementById('output');
             const loading = document.getElementById('loading');
+            const toast = document.getElementById('calendar-toast');
+            const docBtn = document.getElementById('doc-btn');
+            const companyInput = document.getElementById('company');
+            const roleInput = document.getElementById('role');
+            const dateInput = document.getElementById('date');
             
             const payload = {
-                company_name: document.getElementById('company').value,
-                target_role: document.getElementById('role').value,
-                interview_date: document.getElementById('date').value
+                company_name: companyInput.value,
+                target_role: roleInput.value,
+                interview_date: dateInput.value
             };
 
             if(!payload.company_name || !payload.interview_date) return;
 
-            btn.disabled = true;
+            const allButtons = document.querySelectorAll('button');
+
+            // Apply the visual blur and lock interactions[cite: 2]
+            row.classList.add('locked');
+            allButtons.forEach(button => button.disabled = true);
+            companyInput.disabled = true;
+            roleInput.disabled = true;
+            dateInput.disabled = true;
+            docBtn.style.pointerEvents = 'none';
+
             loading.style.display = "block";
             output.innerHTML = "";
+            docBtn.style.display = "none";
+            toast.classList.remove('show');
 
             try {
                 const response = await fetch('/research', {
@@ -179,14 +212,22 @@
                 const data = await response.json();
                 
                 if (data.insights) {
-                    Object.entries(data.insights).forEach(([agent, result]) => {
-                        let contentHtml = "";
+                    if (data.mcp_log) {
+                        docBtn.href = data.mcp_log;
+                        docBtn.style.display = "inline-flex";
+                    }
 
+                    toast.classList.add('show');
+                    setTimeout(() => { toast.classList.remove('show'); }, 5000);
+
+                    const insightsEntries = Array.isArray(data.insights) 
+                        ? data.insights.map(item => [Object.keys(item)[0], item[Object.keys(item)[0]]])
+                        : Object.entries(data.insights);
+
+                    insightsEntries.forEach(([agent, result]) => {
+                        let contentHtml = "";
                         if (result.status === "success" && typeof result.data === 'string') {
-                            const formatted = result.data
-                                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                                .replace(/\n/g, '<br>');
-                            
+                            const formatted = result.data.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/#+/g, '').replace(/\n/g, '<br>');
                             contentHtml = `<div class="content">${formatted}</div>`;
                         } else if (result.status === "success") {
                             contentHtml = `<div class="content">${JSON.stringify(result.data)}</div>`;
@@ -194,31 +235,26 @@
                             contentHtml = `<div class="content" style="color: #e11d48;">Error: ${result.message}</div>`;
                         }
 
-                        const agentClass = agent === "Role_Agent" ? "section role-agent" : "section";
-                        
                         output.innerHTML += `
-                            <div class="${agentClass}">
+                            <div class="section">
                                 <span class="section-label">${agent.replace('_', ' ')} Intelligence</span>
                                 ${contentHtml}
                             </div>
                         `;
                     });
                 }
-
-                if(data.mcp_log && data.mcp_log.includes("http")) {
-                    const urlMatch = data.mcp_log.match(/https?:\/\/[^\s]+/);
-                    if (urlMatch) {
-                        output.innerHTML += `
-                            <div class="notes-container">
-                                <a href="${urlMatch[0]}" target="_blank" class="notes-link">View Generated Notes Document</a>
-                            </div>`;
-                    }
-                }
             } catch (e) {
                 output.innerHTML = "<div class='section'>System error. Check backend logs.</div>";
+            } finally {
+                // Remove the blur and re-enable inputs[cite: 2]
+                row.classList.remove('locked');
+                document.querySelectorAll('button').forEach(button => button.disabled = false);
+                companyInput.disabled = false;
+                roleInput.disabled = false;
+                dateInput.disabled = false;
+                docBtn.style.pointerEvents = '';
+                loading.style.display = "none";
             }
-            btn.disabled = false;
-            loading.style.display = "none";
         }
     </script>
 </body>
