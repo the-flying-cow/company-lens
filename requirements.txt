@@ -5,3 +5,4 @@ protobuf==7.34.1
 pydantic==2.13.3
 python-dotenv==1.2.2
 starlette==1.0.0
+uvicorn
